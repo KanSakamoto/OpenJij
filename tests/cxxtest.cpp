@@ -14,6 +14,7 @@
 #include "../src/updater/quantum_updater.h"
 #include "../src/algorithm/sa.h"
 #include "../src/algorithm/sqa.h"
+#include "../src/utility/union_find.h"
 
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
@@ -49,8 +50,9 @@ TEST(OpenJijTest, spin_generator){
 
 TEST(OpenJijTest, classicalIsing_initialize){
     size_t N=10;
+    const uint_fast32_t seed = 123;
     openjij::graph::Dense<double> dense(N);
-    openjij::system::ClassicalIsing cising(dense);
+    openjij::system::ClassicalIsing cising(dense, seed);
     openjij::graph::Spins spins = cising.get_spins();
 
     cising.initialize_spins();
@@ -61,7 +63,7 @@ TEST(OpenJijTest, classicalIsing_initialize){
 
     // input initial state
     openjij::graph::Spins init_spins(N, 1);
-    openjij::system::ClassicalIsing input_cising(dense, init_spins);
+    openjij::system::ClassicalIsing input_cising(dense, init_spins, seed);
     spins = input_cising.get_spins();
     EXPECT_EQ(init_spins, spins); 
 }
@@ -201,4 +203,51 @@ TEST(OpenJijTest, times_sqa_call_quantum_updater){
         openjij::algorithm::SQA sqa(beta, gamma, step_length, step_num);
         sqa.run(mock_quantum_system);
     }
+}
+
+TEST(OpenJijTest, union_find_tree){
+    {
+        const size_t N = 2;
+        openjij::utility::UnionFindTree uf_tree(N);
+
+        for (auto i = 0; i < N; ++i) {
+            EXPECT_EQ(i, uf_tree.get_root(i));
+            EXPECT_TRUE(uf_tree.is_same_root(i, i));
+        }
+
+        uf_tree.unite(0, 1);
+        EXPECT_TRUE(uf_tree.is_same_root(0, 1));
+    }
+
+    {
+        const size_t N = 7;
+        openjij::utility::UnionFindTree uf_tree(N);
+
+        for (auto i = 0; i < N; ++i) {
+            EXPECT_EQ(i, uf_tree.get_root(i));
+            EXPECT_TRUE(uf_tree.is_same_root(i, i));
+        }
+
+        uf_tree.unite(0,1);
+        uf_tree.unite(1,4);
+        uf_tree.unite(3,5);
+        uf_tree.unite(6,3);
+
+        EXPECT_TRUE (uf_tree.is_same_root(1,4));
+        EXPECT_FALSE(uf_tree.is_same_root(1,3));
+
+        uf_tree.unite(2, 4);
+        EXPECT_TRUE (uf_tree.is_same_root(0,2));
+        EXPECT_FALSE(uf_tree.is_same_root(2,3));
+    }
+}
+
+TEST(OpenJijTest, swendsen_wang) {
+    const size_t N = 10;
+    const uint_fast32_t seed = 123;
+    openjij::graph::Dense<double> dense(N);
+    openjij::system::ClassicalIsing classical_ising(dense, seed);
+
+    // input initial state
+    classical_ising.simulated_annealing(0.1, 0.2, 100, 100, "");
 }

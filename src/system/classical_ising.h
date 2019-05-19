@@ -18,10 +18,13 @@ namespace openjij {
 				using Schedule = std::vector<std::pair<double, size_t>>;
 
 				ClassicalIsing(const graph::Dense<double>& interaction, const graph::Spins& spins);
-				ClassicalIsing(const graph::Dense<double>& interaction)
-					:ClassicalIsing(interaction, interaction.gen_spin()){}
+				ClassicalIsing(const graph::Dense<double>& interaction, const graph::Spins& spins, const uint_fast32_t seed);
+				ClassicalIsing(const graph::Dense<double>& interaction);
+				ClassicalIsing(const graph::Dense<double>& interaction, const uint_fast32_t seed);
 
 				void initialize_spins();
+				void initialize_spins(const uint_fast32_t seed);
+
 				void set_spins(const graph::Spins& initial_spins);
 
 				virtual double update(const double beta, const std::string& algo = "") override;

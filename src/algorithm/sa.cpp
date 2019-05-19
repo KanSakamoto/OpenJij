@@ -4,11 +4,15 @@
 namespace openjij {
     namespace algorithm {
 
-        SA::SA(const Schedule& schedule):schedule(schedule){}
+        SA::SA(const Schedule& schedule)
+            :schedule(schedule) {
+        }
 
         SA::SA(const double beta_min, const double beta_max, const size_t step_length, const size_t step_num) {
+            // linear annealing schedule
             const double r_beta = std::pow(beta_max/beta_min, 1.0/step_num);
             double beta = beta_min;
+
             for (size_t i = 0; i < step_num; i++) {
                 schedule.emplace_back(std::make_pair(beta, step_length));
                 beta *= r_beta;

@@ -129,11 +129,13 @@ PYBIND11_MODULE(cxxjij, m){
 		.def(py::init<const graph::Dense<double>&>(), "other"_a)
 		.def(py::init<const graph::Sparse<double>&>(), "other"_a)
 		.def(py::init<const graph::Dense<double>&, const graph::Spins&>(), "other"_a, "init_state"_a)
+		.def(py::init<const graph::Dense<double>&, const graph::Spins&, const uint_fast32_t>(), "other"_a, "init_state"_a, "seed"_a)
 		.def(py::init<const graph::Sparse<double>&, const graph::Spins&>(), "other"_a, "init_state"_a)
 		.def("simulated_annealing", (void (system::ClassicalIsing::*)(const double, const double, const size_t, const size_t, const std::string&)) &system::ClassicalIsing::simulated_annealing, "beta_min"_a, "beta_max"_a, "step_length"_a, "step_num"_a, "algo"_a="")
 		.def("simulated_annealing", (void (system::ClassicalIsing::*)(const std::vector<std::pair<double, size_t>>&, const std::string&)) &system::ClassicalIsing::simulated_annealing, "schedule"_a, "algo"_a="")
 		.def("get_spins", &system::ClassicalIsing::get_spins)
-		.def("initialize_spins", &system::ClassicalIsing::initialize_spins)
+		.def("initialize_spins", (void (system::ClassicalIsing::*)(void)) &system::ClassicalIsing::initialize_spins)
+		.def("initialize_spins", (void (system::ClassicalIsing::*)(const uint_fast32_t)) &system::ClassicalIsing::initialize_spins, "seed"_a)
 		.def("set_spins", &system::ClassicalIsing::set_spins, "initial_state"_a);
 
 	//QuantumIsing
